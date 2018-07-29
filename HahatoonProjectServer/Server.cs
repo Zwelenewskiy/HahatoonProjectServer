@@ -100,6 +100,7 @@ namespace HahatoonProjectServer
             HttpListenerContext context = (HttpListenerContext)obj;
             DateTime curDate = DateTime.Now;
             char SeparatorChar = '&';
+            Authentication Enter;
 
             var request = context.Request;
             var response = context.Response;
@@ -121,7 +122,7 @@ namespace HahatoonProjectServer
                 {
                     /////////////////Авторизация/////////////////
                     case 0:
-                        var Enter = JsonConvert.DeserializeObject<Authentication>(Jstr);
+                        Enter = JsonConvert.DeserializeObject<Authentication>(Jstr);
 
                         using (var Reader = Query(connect, "select inn from project.users where login = @login && password = @password", true,
                             new Query("@login", Double.PositiveInfinity, Enter.Login), new Query("@password", Double.PositiveInfinity, Enter.Password)))
@@ -153,6 +154,14 @@ namespace HahatoonProjectServer
                                                     
                             SendMessage(response, JsonConvert.SerializeObject(new INN_Comp(tmp)));
                         }
+
+                        break;
+
+                    case 2:
+                        Login = JsonConvert.DeserializeObject<Authentication>(Jstr).Login;
+
+                        Console.WriteLine(curDate + " Пользовaтель " + Login + " отключен");
+                        Console.WriteLine();
 
                         break;
                 }
@@ -197,17 +206,7 @@ namespace HahatoonProjectServer
             return new MySqlConnection("server=" + host + ";database=" + database
                + ";port=" + port + ";user=" + username + ";password=" + password); ;
 
-        }
-        public MySqlDataReader Query(MySqlConnection connect, string query, bool need)
-        {
-            if (need)
-                return new MySqlCommand(query, connect).ExecuteReader();
-            else
-            {
-                new MySqlCommand(query, connect).ExecuteReader();
-                return null;
-            }
-        }
+        }        
         public MySqlDataReader Query(MySqlConnection connect, string query, bool need, params Query[] parametrs)
         {
             using (var command = new MySqlCommand(query, connect))
