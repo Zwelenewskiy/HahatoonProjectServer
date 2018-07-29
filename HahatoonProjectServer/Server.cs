@@ -56,11 +56,22 @@ namespace HahatoonProjectServer
         }
     }
 
-    struct INN_comp
+    struct INN_Comp
     {
-        public string[][] body;       
+        public struct Body_Element
+        {
+            public string INN, Comp_name;
 
-        public INN_comp(string[][] mas)
+            public Body_Element(string inn, string name)
+            {
+                INN = inn;
+                Comp_name = name;
+            }
+        } 
+
+        public List<Body_Element> body;       
+
+        public INN_Comp(List<Body_Element> mas)
         {
             body = mas;
         }
@@ -108,6 +119,7 @@ namespace HahatoonProjectServer
 
                 switch (Convert.ToInt32(Command))
                 {
+                    /////////////////Авторизация/////////////////
                     case 0:
                         var Enter = JsonConvert.DeserializeObject<Authentication>(Jstr);
 
@@ -115,15 +127,33 @@ namespace HahatoonProjectServer
                             new Query("@login", Double.PositiveInfinity, Enter.Login), new Query("@password", Double.PositiveInfinity, Enter.Password)))
                         {
                             if (Reader.HasRows)
+                            {
                                 SendMessage(response, "1");
+                                Console.WriteLine(curDate + " Подключен пользовaтель " + Enter.Login);
+                                Console.WriteLine();
+                            }                                
                             else
                                 SendMessage(response, "0");
-                        }
+                        }                        
 
                         break;
 
+                    /////////////////Список INN-CompName/////////////////
                     case 1:
-                        
+                        List<INN_Comp.Body_Element> tmp = new List<INN_Comp.Body_Element>();
+                        var Login = JsonConvert.DeserializeObject<Authentication>(Jstr).Login;
+
+                        using(var Reader = Query(connect, "select inn, comp from project.inn_comp where login = @login", true,
+                            new Query("@login", Double.PositiveInfinity, Login)))
+                        {
+                            while (Reader.Read())
+                            {
+                                tmp.Add(new INN_Comp.Body_Element(Reader[0].ToString(), Reader[1].ToString()));
+                            }
+                                                    
+                            SendMessage(response, JsonConvert.SerializeObject(new INN_Comp(tmp)));
+                        }
+
                         break;
                 }
 
