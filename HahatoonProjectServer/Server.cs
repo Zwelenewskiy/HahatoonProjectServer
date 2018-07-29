@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Drawing.Imaging;
 using System.Text;
 using System.Net;
@@ -55,6 +56,29 @@ namespace HahatoonProjectServer
         }
     }
 
+    struct INN_comp
+    {
+        public string[][] body;       
+
+        public INN_comp(string[][] mas)
+        {
+            body = mas;
+        }
+    }
+
+    struct Query
+    {
+        public double parametr;
+        public string parametr1, name;
+
+        public Query(string n, double p, string p1)
+        {
+            name = n;
+            parametr = p;
+            parametr1 = p1;
+        }
+    }
+
     class Server
     {
         private HttpListener listener;
@@ -70,15 +94,13 @@ namespace HahatoonProjectServer
             var response = context.Response;
             using (StreamReader input = new StreamReader(
             request.InputStream, Encoding.UTF8))
-            {            
+            {
                 string Command = null, Jstr = null;
                 Program.Parser(input.ReadToEnd(), ref Command, ref Jstr, SeparatorChar);
 
-                //Report UserReport = JsonConvert.DeserializeObject<Report>(Jstr);                   
-
                 var connect = Connection("pavel6520.hopto.org", 25565, "project", "root", "6520");
                 connect.Open();
-                if (connect.State != System.Data.ConnectionState.Open)
+                if (connect.State != ConnectionState.Open)
                 {
                     Console.WriteLine("Ошибка подключения к базе данных");
                     return;
@@ -87,6 +109,21 @@ namespace HahatoonProjectServer
                 switch (Convert.ToInt32(Command))
                 {
                     case 0:
+                        var Enter = JsonConvert.DeserializeObject<Authentication>(Jstr);
+
+                        using (var Reader = Query(connect, "select inn from project.users where login = @login && password = @password", true,
+                            new Query("@login", Double.PositiveInfinity, Enter.Login), new Query("@password", Double.PositiveInfinity, Enter.Password)))
+                        {
+                            if (Reader.HasRows)
+                                SendMessage(response, "1");
+                            else
+                                SendMessage(response, "0");
+                        }
+
+                        break;
+
+                    case 1:
+                        
                         break;
                 }
 
@@ -105,6 +142,7 @@ namespace HahatoonProjectServer
 
             Console.WriteLine(curDate + " Сервер запущен. Ожидание подключений...");
             Console.WriteLine();
+
         }
         public void Stop()
         {
@@ -138,6 +176,40 @@ namespace HahatoonProjectServer
             {
                 new MySqlCommand(query, connect).ExecuteReader();
                 return null;
+            }
+        }
+        public MySqlDataReader Query(MySqlConnection connect, string query, bool need, params Query[] parametrs)
+        {
+            using (var command = new MySqlCommand(query, connect))
+            {
+                if (need)
+                {
+                    for (int i = 0; i < parametrs.Length; i++)
+                    {
+                        if (parametrs[i].parametr != Double.PositiveInfinity)
+                            command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr));
+                        else
+                            command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr1));
+                    }
+
+                    return
+                        command.ExecuteReader();
+
+                }
+                else
+                {
+                    for (int i = 0; i < parametrs.Length; i++)
+                    {
+                        if (parametrs[i].parametr != Double.PositiveInfinity)
+                            command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr));
+                        else
+                            command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr1));
+                    }
+
+                    command.ExecuteReader();
+                    return
+                        null;
+                }
             }
         }
     }
