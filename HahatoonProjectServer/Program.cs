@@ -7,7 +7,7 @@ namespace HahatoonProjectServer
         static void Main(string[] args)
         {
             Server server = new Server();
-            server.Start("http://localhost:8888/connection/");
+            server.Start("http://localhost:8888/");
 
             while (true)
             {

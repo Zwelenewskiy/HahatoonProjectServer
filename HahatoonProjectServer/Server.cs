@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.Drawing.Imaging;
 using System.Text;
 using System.Net;
 using System.IO;
@@ -11,40 +10,20 @@ using Newtonsoft.Json;
 
 namespace HahatoonProjectServer
 {
-    struct Report
+
+    /// <summary>
+    /// Данные отчета
+    /// </summary>
+    public struct Report
     {
-        string INN;
-        public int FM1, FM2, GF1, GF2, CKR1, CKR2, CPP1, CPP2, CE1, CE2;
-        public double FM3, GF3, CKR3, CPP3, CE3;
-
-        public Report(string inn, int fm1, int fm2, double fm3, int gf1, int gf2, double gf3, int ckr1, int ckr2,
-            double ckr3, int cpp1, int cpp2, double cpp3, int ce1, int ce2, double ce3)
-        {
-            INN = inn;
-
-            FM1 = fm1;
-            FM2 = fm2;
-            FM3 = fm3;
-
-            GF1 = gf1;
-            GF2 = gf2;
-            GF3 = gf3;
-
-            CKR1 = ckr1;
-            CKR2 = ckr2;
-            CKR3 = ckr3;
-
-            CPP1 = cpp1;
-            CPP2 = cpp2;
-            CPP2 = cpp2;
-            CPP3 = cpp3;
-
-            CE1 = ce1;
-            CE2 = ce2;
-            CE3 = ce3;
-        }
+        public int[] param1;
+        public int[] param2;
+        public double[] param3;
     }
 
+    /// <summary>
+    /// Данные для авторизации
+    /// </summary>
     struct Authentication
     {
         public string Login, Password;
@@ -104,14 +83,15 @@ namespace HahatoonProjectServer
 
             var request = context.Request;
             var response = context.Response;
-            using (StreamReader input = new StreamReader(
-            request.InputStream, Encoding.UTF8))
+
+            using (StreamReader input = new StreamReader( request.InputStream, Encoding.UTF8))
             {
                 string Command = null, Jstr = null;
                 Program.Parser(input.ReadToEnd(), ref Command, ref Jstr, SeparatorChar);
 
                 var connect = Connection("pavel6520.hopto.org", 25565, "project", "root", "6520");
                 connect.Open();
+
                 if (connect.State != ConnectionState.Open)
                 {
                     Console.WriteLine("Ошибка подключения к базе данных");
@@ -123,18 +103,26 @@ namespace HahatoonProjectServer
                     /////////////////Авторизация/////////////////
                     case 0:
                         Enter = JsonConvert.DeserializeObject<Authentication>(Jstr);
-
-                        using (var Reader = Query(connect, "select inn from project.users where login = @login && password = @password", true,
+                        
+                        using (var Reader = Query(connect, "select Type from project.users where login = @login && password = @password", true,
                             new Query("@login", Double.PositiveInfinity, Enter.Login), new Query("@password", Double.PositiveInfinity, Enter.Password)))
                         {
                             if (Reader.HasRows)
                             {
+
+                                /*while (Reader.Read())
+                                {
+                                    Console.WriteLine("Type = " + Reader[0]);
+                                }*/
+
                                 SendMessage(response, "1");
-                                Console.WriteLine(curDate + " Подключен пользовaтель " + Enter.Login);
+
+                                Console.WriteLine(curDate + " Подключен пользовaтель " + Enter.Login + " " + Enter.Password);
                                 Console.WriteLine();
-                            }                                
+                            }
                             else
                                 SendMessage(response, "0");
+                                
                         }                        
 
                         break;
@@ -158,10 +146,29 @@ namespace HahatoonProjectServer
                         break;
 
                     case 2:
-                        Login = JsonConvert.DeserializeObject<Authentication>(Jstr).Login;
+                        Enter = JsonConvert.DeserializeObject<Authentication>(Jstr);
 
-                        Console.WriteLine(curDate + " Пользовaтель " + Login + " отключен");
+                        Console.WriteLine(curDate + " Пользовaтель " + Enter.Login + " " + Enter.Password + " отключен");
                         Console.WriteLine();
+
+                        break;
+
+                    case 3:
+                        var Report = JsonConvert.DeserializeObject<Report>(Jstr);
+
+                        /*string query = $"insert into project.reports value('{Quarter}', '{dateNow.ToString("yyyy.MM.dd HH:mm:ss")}', '" +
+                    $"{ValParams.param1[0]}', '{ValParams.param2[0]}', '" +
+                    $"{ValParams.param3[0].ToString("G", CultureInfo.InvariantCulture)}', '" +
+                    $"{ValParams.param1[1]}', '{ValParams.param2[1]}', '" +
+                    $"{ValParams.param3[1].ToString("G", CultureInfo.InvariantCulture)}', '" +
+                    $"{ValParams.param1[2]}', '{ValParams.param2[2]}', '" +
+                    $"{ValParams.param3[2].ToString("G", CultureInfo.InvariantCulture)}', '" +
+                    $"{ValParams.param1[3]}', '{ValParams.param2[3]}', '" +
+                    $"{ValParams.param3[3].ToString("G", CultureInfo.InvariantCulture)}', '" +
+                    $"{ValParams.param1[4]}', '{ValParams.param2[4]}', '" +
+                    $"{ValParams.param3[4].ToString("G", CultureInfo.InvariantCulture)}')"; */
+
+                        SendMessage(response, "1");
 
                         break;
                 }
@@ -170,11 +177,13 @@ namespace HahatoonProjectServer
                 connect.Dispose();
             }
         }
+
         public void Start(string host)
         {
             DateTime curDate = DateTime.Now;
 
             listener = new HttpListener();
+
             // установка адресов прослушки 
             listener.Prefixes.Add(host);
             listener.Start();
@@ -188,6 +197,7 @@ namespace HahatoonProjectServer
             // останавливаем прослушивание подключений 
             listener.Stop();
         }
+
         public void NewConnection()
         {
             // метод GetContext блокирует текущий поток, ожидая получение запроса 
@@ -201,12 +211,14 @@ namespace HahatoonProjectServer
             response.ContentLength64 = Encoding.UTF8.GetBytes(message).Length;
             response.OutputStream.Write(Encoding.UTF8.GetBytes(message), 0, Encoding.UTF8.GetBytes(message).Length);
         }
+
         public MySqlConnection Connection(string host, int port, string database, string username, string password)
         {
             return new MySqlConnection("server=" + host + ";database=" + database
                + ";port=" + port + ";user=" + username + ";password=" + password); ;
 
-        }        
+        }   
+        
         public MySqlDataReader Query(MySqlConnection connect, string query, bool need, params Query[] parametrs)
         {
             using (var command = new MySqlCommand(query, connect))
@@ -221,8 +233,7 @@ namespace HahatoonProjectServer
                             command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr1));
                     }
 
-                    return
-                        command.ExecuteReader();
+                    return command.ExecuteReader();
 
                 }
                 else
@@ -236,8 +247,7 @@ namespace HahatoonProjectServer
                     }
 
                     command.ExecuteReader();
-                    return
-                        null;
+                    return null;
                 }
             }
         }
