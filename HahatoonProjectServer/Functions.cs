@@ -28,10 +28,20 @@ namespace HahatoonProjectServer
                 Jstring += Input[j];
         }
 
-        public static void Connection()
+        public static void ShowError(Structs.Errors error)
         {
+            switch (error)
+            {
+                case Structs.Errors.FileNotExists:
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.WriteLine("[" + DateTime.Now + "] File with connection settings");
+                    Console.WriteLine();
+                    Console.WriteLine();
 
-        }
+                    break;
+            }
+        }            
 
         /// <summary>
         /// Обрабатывает команду пользователя

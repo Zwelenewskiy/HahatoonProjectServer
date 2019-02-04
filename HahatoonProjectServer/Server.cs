@@ -10,44 +10,6 @@ using Newtonsoft.Json;
 
 namespace HahatoonProjectServer
 {
-
-    /// <summary>
-    /// Данные отчета
-    /// </summary>
-    public struct Report
-    {
-        public int[] param1;
-        public int[] param2;
-        public double[] param3;
-    }
-
-    
-    struct Authentication
-    {
-        public string Login, Password;
-
-        public Authentication(string log, string pass)
-        {
-            Login = log;
-            Password = pass;
-        }
-    }
-
-    
-
-    struct Query
-    {
-        public double? parametr;
-        public string parametr1, name;
-
-        public Query(string n, double? p, string p1)
-        {
-            name = n;
-            parametr = p;
-            parametr1 = p1;
-        }
-    }
-
     class Server
     {
         private HttpListener listener;
@@ -57,7 +19,7 @@ namespace HahatoonProjectServer
         {
             HttpListenerContext context = (HttpListenerContext)obj;
             DateTime curDate = DateTime.Now;            
-            Authentication Enter;
+            Structs.Authentication Enter;
             
             var request = context.Request;
             var response = context.Response;
@@ -81,10 +43,10 @@ namespace HahatoonProjectServer
                 {
                     /////////////////Авторизация/////////////////
                     case 0:
-                        Enter = JsonConvert.DeserializeObject<Authentication>(Jstr);
+                        Enter = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr);
                         
                         using (var Reader = Query(connect, "select Type from project.users where login = @login && password = @password", true,
-                            new Query("@login", null, Enter.Login), new Query("@password", null, Enter.Password)))
+                            new Structs.Query("@login", null, Enter.Login), new Structs.Query("@password", null, Enter.Password)))
                         {
                             if (Reader.HasRows)
                             {
@@ -109,10 +71,10 @@ namespace HahatoonProjectServer
                     /////////////////Список INN-CompName/////////////////
                     case 1:
                         List<Structs.INN_Comp.Body_Element> tmp = new List<Structs.INN_Comp.Body_Element>();
-                        var Login = JsonConvert.DeserializeObject<Authentication>(Jstr).Login;
+                        var Login = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr).Login;
 
                         using (var Reader = Query(connect, "select inn, comp from project.inn_comp where login = @login", true,
-                            new Query("@login", null, Login)))
+                            new Structs.Query("@login", null, Login)))
                         {
                             while (Reader.Read())
 
@@ -127,7 +89,7 @@ namespace HahatoonProjectServer
                         break;
 
                     case 2:
-                        Enter = JsonConvert.DeserializeObject<Authentication>(Jstr);
+                        Enter = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr);
 
                         Console.WriteLine(curDate + " Пользовaтель " + Enter.Login + " " + Enter.Password + " отключен");
                         Console.WriteLine();
@@ -135,7 +97,7 @@ namespace HahatoonProjectServer
                         break;
 
                     case 3:
-                        var Report = JsonConvert.DeserializeObject<Report>(Jstr);
+                        var Report = JsonConvert.DeserializeObject<Structs.Report>(Jstr);
 
                         /*string query = $"insert into project.reports value('{Quarter}', '{dateNow.ToString("yyyy.MM.dd HH:mm:ss")}', '" +
                     $"{ValParams.param1[0]}', '{ValParams.param2[0]}', '" +
@@ -200,7 +162,7 @@ namespace HahatoonProjectServer
 
         }   
         
-        public MySqlDataReader Query(MySqlConnection connect, string query, bool need, params Query[] parametrs)
+        public MySqlDataReader Query(MySqlConnection connect, string query, bool need, params Structs.Query[] parametrs)
         {
             using (var command = new MySqlCommand(query, connect))
             {

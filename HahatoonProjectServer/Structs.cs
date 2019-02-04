@@ -51,6 +51,29 @@ namespace HahatoonProjectServer
             }
         }
 
+        /// <summary>
+        /// Данные отчета
+        /// </summary>
+        public struct Report
+        {
+            public int[] param1;
+            public int[] param2;
+            public double[] param3;
+        }
+        
+        public struct Query
+        {
+            public double? parametr;
+            public string parametr1, name;
+
+            public Query(string n, double? p, string p1)
+            {
+                name = n;
+                parametr = p;
+                parametr1 = p1;
+            }
+        }
+
         /*public static void Connection()
         {
             if (File.Exists(CONNECTION_FILE))

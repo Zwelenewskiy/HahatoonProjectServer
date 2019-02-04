@@ -7,10 +7,6 @@ namespace HahatoonProjectServer
 {
     class Program
     {
-        
-
-        
-
         static void Main(string[] args)
         {
             Task.Factory.StartNew(() => 
