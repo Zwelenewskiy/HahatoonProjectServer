@@ -21,9 +21,7 @@ namespace HahatoonProjectServer
         public double[] param3;
     }
 
-    /// <summary>
-    /// Данные для авторизации
-    /// </summary>
+    
     struct Authentication
     {
         public string Login, Password;
@@ -35,26 +33,7 @@ namespace HahatoonProjectServer
         }
     }
 
-    struct INN_Comp
-    {
-        public struct Body_Element
-        {
-            public string INN, Comp_name;
-
-            public Body_Element(string inn, string name)
-            {
-                INN = inn;
-                Comp_name = name;
-            }
-        } 
-
-        public List<Body_Element> body;       
-
-        public INN_Comp(List<Body_Element> mas)
-        {
-            body = mas;
-        }
-    }
+    
 
     struct Query
     {
@@ -77,8 +56,7 @@ namespace HahatoonProjectServer
         public void NewUser(object obj)
         {
             HttpListenerContext context = (HttpListenerContext)obj;
-            DateTime curDate = DateTime.Now;
-            char SeparatorChar = '&';
+            DateTime curDate = DateTime.Now;            
             Authentication Enter;
             
             var request = context.Request;
@@ -87,7 +65,7 @@ namespace HahatoonProjectServer
             using (StreamReader input = new StreamReader( request.InputStream, Encoding.UTF8))
             {
                 string Command = null, Jstr = null;
-                Program.Parser(input.ReadToEnd(), ref Command, ref Jstr, SeparatorChar);
+                Program.Parser(input.ReadToEnd(), ref Command, ref Jstr, Structs.SeparatorChar);
 
                 //var connect = Connection("pavel6520.hopto.org", 25565, "project", "root", "6520");
                 var connect = Connection("localhost", 3307, "hakaton", "root", "121958");
@@ -130,7 +108,7 @@ namespace HahatoonProjectServer
 
                     /////////////////Список INN-CompName/////////////////
                     case 1:
-                        List<INN_Comp.Body_Element> tmp = new List<INN_Comp.Body_Element>();
+                        List<Structs.INN_Comp.Body_Element> tmp = new List<Structs.INN_Comp.Body_Element>();
                         var Login = JsonConvert.DeserializeObject<Authentication>(Jstr).Login;
 
                         using (var Reader = Query(connect, "select inn, comp from project.inn_comp where login = @login", true,
@@ -140,10 +118,10 @@ namespace HahatoonProjectServer
 
 
                             {
-                                tmp.Add(new INN_Comp.Body_Element(Reader[0].ToString(), Reader[1].ToString()));
+                                tmp.Add(new Structs.INN_Comp.Body_Element(Reader[0].ToString(), Reader[1].ToString()));
                             }
                                                     
-                            SendMessage(response, JsonConvert.SerializeObject(new INN_Comp(tmp)));
+                            SendMessage(response, JsonConvert.SerializeObject(new Structs.INN_Comp(tmp)));
                         }
 
                         break;

@@ -7,7 +7,7 @@ namespace HahatoonProjectServer
 {
     class Program
     {
-        readonly static string HOST = "http://localhost:8888/";
+        
 
         public static void Parser(string Input, ref string Command, ref string Jstring, char Separator)
         {
@@ -47,7 +47,7 @@ namespace HahatoonProjectServer
             Task.Factory.StartNew(() => 
             {
                 Server server = new Server();
-                server.Start(HOST);
+                server.Start(Structs.HOST);
 
                 while (true)
                 {
