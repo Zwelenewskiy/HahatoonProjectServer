@@ -58,10 +58,10 @@ namespace HahatoonProjectServer
 
     struct Query
     {
-        public double parametr;
+        public double? parametr;
         public string parametr1, name;
 
-        public Query(string n, double p, string p1)
+        public Query(string n, double? p, string p1)
         {
             name = n;
             parametr = p;
@@ -80,7 +80,7 @@ namespace HahatoonProjectServer
             DateTime curDate = DateTime.Now;
             char SeparatorChar = '&';
             Authentication Enter;
-
+            
             var request = context.Request;
             var response = context.Response;
 
@@ -89,7 +89,8 @@ namespace HahatoonProjectServer
                 string Command = null, Jstr = null;
                 Program.Parser(input.ReadToEnd(), ref Command, ref Jstr, SeparatorChar);
 
-                var connect = Connection("pavel6520.hopto.org", 25565, "project", "root", "6520");
+                //var connect = Connection("pavel6520.hopto.org", 25565, "project", "root", "6520");
+                var connect = Connection("localhost", 3307, "hakaton", "root", "121958");
                 connect.Open();
 
                 if (connect.State != ConnectionState.Open)
@@ -105,7 +106,7 @@ namespace HahatoonProjectServer
                         Enter = JsonConvert.DeserializeObject<Authentication>(Jstr);
                         
                         using (var Reader = Query(connect, "select Type from project.users where login = @login && password = @password", true,
-                            new Query("@login", Double.PositiveInfinity, Enter.Login), new Query("@password", Double.PositiveInfinity, Enter.Password)))
+                            new Query("@login", null, Enter.Login), new Query("@password", null, Enter.Password)))
                         {
                             if (Reader.HasRows)
                             {
@@ -117,7 +118,7 @@ namespace HahatoonProjectServer
 
                                 SendMessage(response, "1");
 
-                                Console.WriteLine(curDate + " Подключен пользовaтель " + Enter.Login + " " + Enter.Password);
+                                Console.WriteLine("[" + curDate + "] Подключен пользовaтель " + Enter.Login + " " + Enter.Password);
                                 Console.WriteLine();
                             }
                             else
@@ -132,10 +133,12 @@ namespace HahatoonProjectServer
                         List<INN_Comp.Body_Element> tmp = new List<INN_Comp.Body_Element>();
                         var Login = JsonConvert.DeserializeObject<Authentication>(Jstr).Login;
 
-                        using(var Reader = Query(connect, "select inn, comp from project.inn_comp where login = @login", true,
-                            new Query("@login", Double.PositiveInfinity, Login)))
+                        using (var Reader = Query(connect, "select inn, comp from project.inn_comp where login = @login", true,
+                            new Query("@login", null, Login)))
                         {
                             while (Reader.Read())
+
+
                             {
                                 tmp.Add(new INN_Comp.Body_Element(Reader[0].ToString(), Reader[1].ToString()));
                             }
@@ -227,7 +230,7 @@ namespace HahatoonProjectServer
                 {
                     for (int i = 0; i < parametrs.Length; i++)
                     {
-                        if (parametrs[i].parametr != Double.PositiveInfinity)
+                        if (parametrs[i].parametr != null)
                             command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr));
                         else
                             command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr1));
@@ -240,7 +243,7 @@ namespace HahatoonProjectServer
                 {
                     for (int i = 0; i < parametrs.Length; i++)
                     {
-                        if (parametrs[i].parametr != Double.PositiveInfinity)
+                        if (parametrs[i].parametr != null)
                             command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr));
                         else
                             command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr1));
