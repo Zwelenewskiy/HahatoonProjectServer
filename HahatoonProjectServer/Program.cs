@@ -9,38 +9,7 @@ namespace HahatoonProjectServer
     {
         
 
-        public static void Parser(string Input, ref string Command, ref string Jstring, char Separator)
-        {
-            int i = 0;
-            while (Input[i] != Separator)
-            {
-                Command += Input[i];
-                i++;
-            }
-
-            for (int j = ++i; j < Input.Length; j++)
-                Jstring += Input[j];
-        }
-
-        public static void Connection()
-        {
-
-        }
         
-        public static void ReadCommand()
-        {
-            string command = Console.ReadLine();
-
-            switch (command.ToLower())
-            {
-                case "stat":
-                    break;
-
-                case "clear":
-                    Console.Clear();
-                    break;
-            }
-        }
 
         static void Main(string[] args)
         {
@@ -58,7 +27,7 @@ namespace HahatoonProjectServer
 
             while (true)
             {
-                ReadCommand();
+                Functions.ReadCommand();
             }
         }       
     }

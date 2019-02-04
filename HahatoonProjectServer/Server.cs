@@ -65,7 +65,7 @@ namespace HahatoonProjectServer
             using (StreamReader input = new StreamReader( request.InputStream, Encoding.UTF8))
             {
                 string Command = null, Jstr = null;
-                Program.Parser(input.ReadToEnd(), ref Command, ref Jstr, Structs.SeparatorChar);
+                Functions.Parser(input.ReadToEnd(), ref Command, ref Jstr, Structs.SeparatorChar);
 
                 //var connect = Connection("pavel6520.hopto.org", 25565, "project", "root", "6520");
                 var connect = Connection("localhost", 3307, "hakaton", "root", "121958");

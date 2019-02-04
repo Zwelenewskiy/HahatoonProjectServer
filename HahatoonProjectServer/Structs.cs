@@ -51,16 +51,7 @@ namespace HahatoonProjectServer
             }
         }
 
-        /*public static void ShowError(byte errorCode)
-        {
-            switch (errorCode)
-            {
-                case 1:
-                    break;
-            }
-        }
-
-        public static void Connection()
+        /*public static void Connection()
         {
             if (File.Exists(CONNECTION_FILE))
             {
@@ -70,6 +61,21 @@ namespace HahatoonProjectServer
             {
                 ShowError(1);
             }
-        }*/
+        }
+        
+        public static void ShowError(Structs.Errors error)
+        {
+            switch (error)
+            {
+                case Structs.Errors.FileNotExists:
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.WriteLine(" File with connection settings");
+
+                    break;
+            }
+        }     
+         
+         */
     }
 }
