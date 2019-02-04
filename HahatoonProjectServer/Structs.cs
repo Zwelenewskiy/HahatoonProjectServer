@@ -20,7 +20,8 @@ namespace HahatoonProjectServer
         {
             ConnectionFileNotExists,
             ErrorCreatingConnection,
-            ErrorStartServer
+            ErrorStartServer,
+            ErrorStopServer,
         }
 
         /// <summary>

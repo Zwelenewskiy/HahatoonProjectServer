@@ -139,6 +139,7 @@ namespace HahatoonProjectServer
         {
             // останавливаем прослушивание подключений 
             listener.Stop();
+            Structs.server = null;
 
             Console.WriteLine();
             Console.WriteLine();

@@ -41,18 +41,19 @@ namespace HahatoonProjectServer
             switch (error)
             {
                 case Structs.Errors.ConnectionFileNotExists:                    
-                    Console.WriteLine("[" + DateTime.Now + "] File with connection settings not found");                 
-
+                    Console.WriteLine("[" + DateTime.Now + "] File with connection settings not found");   
                     break;
 
                 case Structs.Errors.ErrorCreatingConnection:
                     Console.WriteLine("[" + DateTime.Now + "] Error creating database connection");
-
                     break;
 
                 case Structs.Errors.ErrorStartServer:
                     Console.WriteLine("[" + DateTime.Now + "] Server is already running");
+                    break;
 
+                case Structs.Errors.ErrorStopServer:
+                    Console.WriteLine("[" + DateTime.Now + "] Server is already stopped");
                     break;
             }
 
@@ -82,7 +83,7 @@ namespace HahatoonProjectServer
         }
 
         /// <summary>
-            /// Обрабатывает команду пользователя
+            /// Обрабатывает глобальную команду пользователя
             /// </summary>
         public static void ReadCommand()
         {
@@ -104,8 +105,20 @@ namespace HahatoonProjectServer
                         ShowError(Structs.Errors.ErrorStartServer);
                         return;
                     }
-
+                    
+                    Structs.server = new Server();
                     Structs.server.Start(Structs.HOST);
+
+                    break;
+
+                case "stop":
+                    if (Structs.server == null)
+                    {
+                        ShowError(Structs.Errors.ErrorStopServer);
+                        return;
+                    }
+
+                    Structs.server.Stop();
 
                     break;
             }
