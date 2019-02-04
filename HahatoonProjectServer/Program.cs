@@ -20,7 +20,6 @@ namespace HahatoonProjectServer
                 }
             }, TaskCreationOptions.LongRunning);
 
-
             while (true)
             {
                 Functions.ReadCommand();

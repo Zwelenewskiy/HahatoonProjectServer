@@ -9,11 +9,16 @@ namespace HahatoonProjectServer
     public static class Structs
     {
         public static readonly string HOST = "http://localhost:8888/";
+        public static readonly string CONNECTION_FILE = "Connection.txt";
         public static readonly char SeparatorChar = '&';
 
+        /// <summary>
+        /// Представляет константы для типов ошибок
+        /// </summary>
         public enum Errors
         {
-            FileNotExists,
+            ConnectionFileNotExists,
+            ErrorCreatingConnection
         }
 
         /// <summary>
@@ -73,32 +78,5 @@ namespace HahatoonProjectServer
                 parametr1 = p1;
             }
         }
-
-        /*public static void Connection()
-        {
-            if (File.Exists(CONNECTION_FILE))
-            {
-
-            }
-            else
-            {
-                ShowError(1);
-            }
-        }
-        
-        public static void ShowError(Structs.Errors error)
-        {
-            switch (error)
-            {
-                case Structs.Errors.FileNotExists:
-                    Console.WriteLine();
-                    Console.WriteLine();
-                    Console.WriteLine(" File with connection settings");
-
-                    break;
-            }
-        }     
-         
-         */
     }
 }

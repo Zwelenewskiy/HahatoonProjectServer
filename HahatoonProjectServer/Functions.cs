@@ -1,5 +1,7 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,25 +30,56 @@ namespace HahatoonProjectServer
                 Jstring += Input[j];
         }
 
+        /// <summary>
+        /// Выводит сообщение об ошибке
+        /// </summary>
         public static void ShowError(Structs.Errors error)
         {
+            Console.WriteLine();
+            Console.WriteLine();
+
             switch (error)
             {
-                case Structs.Errors.FileNotExists:
-                    Console.WriteLine();
-                    Console.WriteLine();
-                    Console.WriteLine("[" + DateTime.Now + "] File with connection settings");
-                    Console.WriteLine();
-                    Console.WriteLine();
+                case Structs.Errors.ConnectionFileNotExists:                    
+                    Console.WriteLine("[" + DateTime.Now + "] File with connection settings not found");                 
+
+                    break;
+
+                case Structs.Errors.ErrorCreatingConnection:
+                    Console.WriteLine("[" + DateTime.Now + "] Error creating database connection");
 
                     break;
             }
-        }            
+
+            Console.WriteLine();
+            Console.WriteLine();
+        }
 
         /// <summary>
-        /// Обрабатывает команду пользователя
+        /// Создает подключение к базе данных
         /// </summary>
-        public static void ReadCommand()
+        public static MySqlConnection Connection(string path)
+        {
+            if (File.Exists(path))
+            {
+                using (StreamReader sr = new StreamReader(Structs.CONNECTION_FILE, Encoding.Default))
+                {
+                    return new MySqlConnection("server=" + sr.ReadLine() + ";database=" + sr.ReadLine()
+                        + ";port=" + Convert.ToInt32(sr.ReadLine()) + ";user=" + sr.ReadLine() + ";password=" + sr.ReadLine());
+                }
+            }
+            else
+            {
+                ShowError(Structs.Errors.ConnectionFileNotExists);
+
+                return null;
+            }
+        }
+
+            /// <summary>
+            /// Обрабатывает команду пользователя
+            /// </summary>
+            public static void ReadCommand()
         {
             string command = Console.ReadLine();
 

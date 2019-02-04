@@ -28,14 +28,13 @@ namespace HahatoonProjectServer
             {
                 string Command = null, Jstr = null;
                 Functions.Parser(input.ReadToEnd(), ref Command, ref Jstr, Structs.SeparatorChar);
+                
+                var connect = Functions.Connection(Structs.CONNECTION_FILE);
 
-                //var connect = Connection("pavel6520.hopto.org", 25565, "project", "root", "6520");
-                var connect = Connection("localhost", 3307, "hakaton", "root", "121958");
                 connect.Open();
-
                 if (connect.State != ConnectionState.Open)
                 {
-                    Console.WriteLine("Ошибка подключения к базе данных");
+                    Functions.ShowError(Structs.Errors.ErrorCreatingConnection);
                     return;
                 }
 
@@ -158,7 +157,7 @@ namespace HahatoonProjectServer
         public MySqlConnection Connection(string host, int port, string database, string username, string password)
         {
             return new MySqlConnection("server=" + host + ";database=" + database
-               + ";port=" + port + ";user=" + username + ";password=" + password); ;
+               + ";port=" + port + ";user=" + username + ";password=" + password);
 
         }   
         
