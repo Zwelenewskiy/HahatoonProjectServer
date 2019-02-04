@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace HahatoonProjectServer
 {
-    class Server
+    public class Server
     {
         private HttpListener listener;
 
@@ -132,12 +132,17 @@ namespace HahatoonProjectServer
 
             Console.WriteLine(curDate + " Сервер запущен. Ожидание подключений...");
             Console.WriteLine();
+            Console.WriteLine();
 
         }
         public void Stop()
         {
             // останавливаем прослушивание подключений 
             listener.Stop();
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("Сервер остановлен");
         }
 
         public void NewConnection()

@@ -49,6 +49,11 @@ namespace HahatoonProjectServer
                     Console.WriteLine("[" + DateTime.Now + "] Error creating database connection");
 
                     break;
+
+                case Structs.Errors.ErrorStartServer:
+                    Console.WriteLine("[" + DateTime.Now + "] Server is already running");
+
+                    break;
             }
 
             Console.WriteLine();
@@ -76,10 +81,10 @@ namespace HahatoonProjectServer
             }
         }
 
-            /// <summary>
+        /// <summary>
             /// Обрабатывает команду пользователя
             /// </summary>
-            public static void ReadCommand()
+        public static void ReadCommand()
         {
             string command = Console.ReadLine();
 
@@ -90,6 +95,18 @@ namespace HahatoonProjectServer
 
                 case "clear":
                     Console.Clear();
+
+                    break;
+
+                case "start":
+                    if(Structs.server != null)
+                    {
+                        ShowError(Structs.Errors.ErrorStartServer);
+                        return;
+                    }
+
+                    Structs.server.Start(Structs.HOST);
+
                     break;
             }
         }

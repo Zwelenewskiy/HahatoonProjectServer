@@ -11,12 +11,12 @@ namespace HahatoonProjectServer
         {
             Task.Factory.StartNew(() => 
             {
-                Server server = new Server();
-                server.Start(Structs.HOST);
+                Structs.server = new Server();
+                Structs.server.Start(Structs.HOST);
 
                 while (true)
                 {
-                    server.NewConnection();
+                    Structs.server.NewConnection();
                 }
             }, TaskCreationOptions.LongRunning);
 

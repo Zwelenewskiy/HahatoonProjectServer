@@ -11,6 +11,7 @@ namespace HahatoonProjectServer
         public static readonly string HOST = "http://localhost:8888/";
         public static readonly string CONNECTION_FILE = "Connection.txt";
         public static readonly char SeparatorChar = '&';
+        public static Server server = null;
 
         /// <summary>
         /// Представляет константы для типов ошибок
@@ -18,7 +19,8 @@ namespace HahatoonProjectServer
         public enum Errors
         {
             ConnectionFileNotExists,
-            ErrorCreatingConnection
+            ErrorCreatingConnection,
+            ErrorStartServer
         }
 
         /// <summary>
