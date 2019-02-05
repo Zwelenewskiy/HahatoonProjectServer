@@ -44,14 +44,14 @@ namespace HahatoonProjectServer
                     case 0:
                         Enter = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr);
 
-                        using (var Reader = Query(connect, $"select * from {Structs.BD_NAME}.users where login = @login && password = @password", true,
+                        using (var Reader = Query(connect, $"select * from {Structs.BD_NAME}.user where login = @login && password = @password", true,
                             new Structs.Query("@login", null, Enter.Login), new Structs.Query("@password", null, Enter.Password)))
                         {
                             if (Reader.HasRows)
                             {
                                 SendMessage(response, "1");
 
-                                Console.WriteLine("[" + curDate + "] Подключен пользовaтель " + Enter.Login + " " + Enter.Password);
+                                Console.WriteLine("[" + curDate + "] Подключен пользовaтель [" + Enter.Login + "] [" + Enter.Password + "]");
                                 Console.WriteLine();
                             }
                             else
@@ -66,12 +66,10 @@ namespace HahatoonProjectServer
                         List<Structs.INN_Comp.Body_Element> tmp = new List<Structs.INN_Comp.Body_Element>();
                         var Login = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr).Login;
                                                 
-                        using (var Reader = Query(connect, $"select inn, comp from {Structs.BD_NAME}.inn_comp where login = @login", true,
+                        using (var Reader = Query(connect, $"select inn, compName from {Structs.BD_NAME}.inn_comp where User_login = @login", true,
                             new Structs.Query("@login", null, Login)))
                         {
                             while (Reader.Read())
-
-
                             {
                                 tmp.Add(new Structs.INN_Comp.Body_Element(Reader[0].ToString(), Reader[1].ToString()));
                             }
@@ -84,7 +82,7 @@ namespace HahatoonProjectServer
                     case 2:
                         Enter = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr);
 
-                        Console.WriteLine(curDate + " Пользовaтель " + Enter.Login + " " + Enter.Password + " отключен");
+                        Console.WriteLine("[" + curDate + "] Пользовaтель [" + Enter.Login + "] [" + Enter.Password + "] отключен");
                         Console.WriteLine();
 
                         break;
