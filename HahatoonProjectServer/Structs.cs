@@ -10,6 +10,7 @@ namespace HahatoonProjectServer
     {
         public static readonly string HOST = "http://localhost:8888/";
         public static readonly string CONNECTION_FILE = "Connection.txt";
+        public static readonly string BD_NAME = "hakaton";
         public static readonly char SeparatorChar = '&';
         public static Server server = null;
 
