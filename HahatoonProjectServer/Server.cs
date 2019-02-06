@@ -5,7 +5,6 @@ using System.Net;
 using System.IO;
 using System.Threading;
 using System.Collections.Generic;
-using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using System.Globalization;
 
@@ -148,7 +147,5 @@ namespace HahatoonProjectServer
             Thread new_user = new Thread(new ParameterizedThreadStart(NewUser));
             new_user.Start(context);
         }
-
-        
     }
 }
