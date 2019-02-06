@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -82,9 +83,55 @@ namespace HahatoonProjectServer
             }
         }
 
+        public static void SendMessage(HttpListenerResponse response, string message)
+        {
+            response.ContentLength64 = Encoding.UTF8.GetBytes(message).Length;
+            response.OutputStream.Write(Encoding.UTF8.GetBytes(message), 0, Encoding.UTF8.GetBytes(message).Length);
+        }
+
+        public static MySqlConnection Connection(string host, int port, string database, string username, string password)
+        {
+            return new MySqlConnection("server=" + host + ";database=" + database
+               + ";port=" + port + ";user=" + username + ";password=" + password);
+
+        }
+
+        public static MySqlDataReader Query(MySqlConnection connect, string query, bool need, params Structs.Query[] parametrs)
+        {
+            using (var command = new MySqlCommand(query, connect))
+            {
+                if (need)
+                {
+                    for (int i = 0; i < parametrs.Length; i++)
+                    {
+                        if (parametrs[i].parametr != null)
+                            command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr));
+                        else
+                            command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr1));
+                    }
+
+                    return command.ExecuteReader();
+
+                }
+                else
+                {
+                    for (int i = 0; i < parametrs.Length; i++)
+                    {
+                        if (parametrs[i].parametr != null)
+                            command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr));
+                        else
+                            command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr1));
+                    }
+
+                    command.ExecuteReader();
+                    return null;
+                }
+            }
+        }
+
         /// <summary>
-            /// Обрабатывает глобальную команду пользователя
-            /// </summary>
+        /// Обрабатывает глобальную команду пользователя
+        /// </summary>
         public static void ReadCommand()
         {
             string command = Console.ReadLine();

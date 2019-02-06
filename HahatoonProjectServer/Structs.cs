@@ -65,6 +65,10 @@ namespace HahatoonProjectServer
         /// </summary>
         public struct Report
         {
+            public string inn;
+            public int quarter;
+            public int year;
+
             public int[] param1;
             public int[] param2;
             public double[] param3;

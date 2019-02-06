@@ -7,6 +7,7 @@ using System.Threading;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace HahatoonProjectServer
 {
@@ -19,7 +20,7 @@ namespace HahatoonProjectServer
         {
             HttpListenerContext context = (HttpListenerContext)obj;
             DateTime curDate = DateTime.Now;            
-            Structs.Authentication Enter;
+            Structs.Authentication enter;
             
             var request = context.Request;
             var response = context.Response;
@@ -42,20 +43,20 @@ namespace HahatoonProjectServer
                 {
                     /////////////////Авторизация/////////////////
                     case 0:
-                        Enter = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr);
+                        enter = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr);
 
-                        using (var Reader = Query(connect, $"select * from {Structs.BD_NAME}.user where login = @login && password = @password", true,
-                            new Structs.Query("@login", null, Enter.Login), new Structs.Query("@password", null, Enter.Password)))
+                        using (var Reader = Functions.Query(connect, $"select * from {Structs.BD_NAME}.user where login = @login && password = @password", true,
+                            new Structs.Query("@login", null, enter.Login), new Structs.Query("@password", null, enter.Password)))
                         {
                             if (Reader.HasRows)
                             {
-                                SendMessage(response, "1");
+                                Functions.SendMessage(response, "1");
 
-                                Console.WriteLine("[" + curDate + "] Подключен пользовaтель [" + Enter.Login + "] [" + Enter.Password + "]");
+                                Console.WriteLine("[" + curDate + "] Подключен пользовaтель [" + enter.Login + "] [" + enter.Password + "]");
                                 Console.WriteLine();
                             }
                             else
-                                SendMessage(response, "0");
+                                Functions.SendMessage(response, "0");
                                 
                         }                        
 
@@ -66,43 +67,40 @@ namespace HahatoonProjectServer
                         List<Structs.INN_Comp.Body_Element> tmp = new List<Structs.INN_Comp.Body_Element>();
                         var Login = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr).Login;
                                                 
-                        using (var Reader = Query(connect, $"select inn, compName from {Structs.BD_NAME}.inn_comp where User_login = @login", true,
+                        using (var Reader = Functions.Query(connect, $"select inn, compName from {Structs.BD_NAME}.inn_comp where User_login = @login", true,
                             new Structs.Query("@login", null, Login)))
                         {
                             while (Reader.Read())
                             {
                                 tmp.Add(new Structs.INN_Comp.Body_Element(Reader[0].ToString(), Reader[1].ToString()));
                             }
-                                                    
-                            SendMessage(response, JsonConvert.SerializeObject(new Structs.INN_Comp(tmp)));
+
+                            Functions.SendMessage(response, JsonConvert.SerializeObject(new Structs.INN_Comp(tmp)));
                         }
 
                         break;
 
                     case 2:
-                        Enter = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr);
+                        enter = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr);
 
-                        Console.WriteLine("[" + curDate + "] Пользовaтель [" + Enter.Login + "] [" + Enter.Password + "] отключен");
+                        Console.WriteLine("[" + curDate + "] Пользовaтель [" + enter.Login + "] [" + enter.Password + "] отключен");
                         Console.WriteLine();
 
                         break;
 
                     case 3:
-                        var Report = JsonConvert.DeserializeObject<Structs.Report>(Jstr);
+                        var report = JsonConvert.DeserializeObject<Structs.Report>(Jstr);
 
-                        /*string query = $"insert into project.reports value('{Quarter}', '{dateNow.ToString("yyyy.MM.dd HH:mm:ss")}', '" +
-                    $"{ValParams.param1[0]}', '{ValParams.param2[0]}', '" +
-                    $"{ValParams.param3[0].ToString("G", CultureInfo.InvariantCulture)}', '" +
-                    $"{ValParams.param1[1]}', '{ValParams.param2[1]}', '" +
-                    $"{ValParams.param3[1].ToString("G", CultureInfo.InvariantCulture)}', '" +
-                    $"{ValParams.param1[2]}', '{ValParams.param2[2]}', '" +
-                    $"{ValParams.param3[2].ToString("G", CultureInfo.InvariantCulture)}', '" +
-                    $"{ValParams.param1[3]}', '{ValParams.param2[3]}', '" +
-                    $"{ValParams.param3[3].ToString("G", CultureInfo.InvariantCulture)}', '" +
-                    $"{ValParams.param1[4]}', '{ValParams.param2[4]}', '" +
-                    $"{ValParams.param3[4].ToString("G", CultureInfo.InvariantCulture)}')"; */
+                        string query = $"call {Structs.BD_NAME}.AddNewReport('{report.inn}', {report.quarter}, {report.year}, '{DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss")}', '" +
+                            $"{report.param1[0]}', '{report.param2[0]}', '{report.param3[0].ToString("G", CultureInfo.InvariantCulture)}', '" +
+                            $"{report.param1[1]}', '{report.param2[1]}', '{report.param3[1].ToString("G", CultureInfo.InvariantCulture)}', '" +
+                            $"{report.param1[2]}', '{report.param2[2]}', '{report.param3[2].ToString("G", CultureInfo.InvariantCulture)}', '" +
+                            $"{report.param1[3]}', '{report.param2[3]}', '{report.param3[3].ToString("G", CultureInfo.InvariantCulture)}', '" +
+                            $"{report.param1[4]}', '{report.param2[4]}', '{report.param3[4].ToString("G", CultureInfo.InvariantCulture)}')";
 
-                        SendMessage(response, "1");
+                        Functions.Query(connect, query, false);
+
+                        Functions.SendMessage(response, "1");
 
                         break;
                 }
@@ -146,50 +144,7 @@ namespace HahatoonProjectServer
             Thread new_user = new Thread(new ParameterizedThreadStart(NewUser));
             new_user.Start(context);
         }
-        public void SendMessage(HttpListenerResponse response, string message)
-        {
-            response.ContentLength64 = Encoding.UTF8.GetBytes(message).Length;
-            response.OutputStream.Write(Encoding.UTF8.GetBytes(message), 0, Encoding.UTF8.GetBytes(message).Length);
-        }
 
-        public MySqlConnection Connection(string host, int port, string database, string username, string password)
-        {
-            return new MySqlConnection("server=" + host + ";database=" + database
-               + ";port=" + port + ";user=" + username + ";password=" + password);
-
-        }   
         
-        public MySqlDataReader Query(MySqlConnection connect, string query, bool need, params Structs.Query[] parametrs)
-        {
-            using (var command = new MySqlCommand(query, connect))
-            {
-                if (need)
-                {
-                    for (int i = 0; i < parametrs.Length; i++)
-                    {
-                        if (parametrs[i].parametr != null)
-                            command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr));
-                        else
-                            command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr1));
-                    }
-
-                    return command.ExecuteReader();
-
-                }
-                else
-                {
-                    for (int i = 0; i < parametrs.Length; i++)
-                    {
-                        if (parametrs[i].parametr != null)
-                            command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr));
-                        else
-                            command.Parameters.Add(new MySqlParameter(parametrs[i].name, parametrs[i].parametr1));
-                    }
-
-                    command.ExecuteReader();
-                    return null;
-                }
-            }
-        }
     }
 }
