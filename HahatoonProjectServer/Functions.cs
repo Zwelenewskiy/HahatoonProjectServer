@@ -35,26 +35,26 @@ namespace HahatoonProjectServer
         /// <summary>
         /// Выводит сообщение об ошибке
         /// </summary>
-        public static void ShowError(Structs.Errors error)
+        public static void ShowMessage(Structs.Message messageType)
         {
             Console.WriteLine();
             Console.WriteLine();
 
-            switch (error)
+            switch (messageType)
             {
-                case Structs.Errors.ConnectionFileNotExists:                    
+                case Structs.Message.ConnectionFileNotExists:                    
                     Console.WriteLine("[" + DateTime.Now + "] File with connection settings not found");   
                     break;
 
-                case Structs.Errors.ErrorCreatingConnection:
+                case Structs.Message.ErrorCreatingConnection:
                     Console.WriteLine("[" + DateTime.Now + "] Error creating database connection");
                     break;
 
-                case Structs.Errors.ErrorStartServer:
+                case Structs.Message.ErrorStartServer:
                     Console.WriteLine("[" + DateTime.Now + "] Server is already running");
                     break;
 
-                case Structs.Errors.ErrorStopServer:
+                case Structs.Message.ErrorStopServer:
                     Console.WriteLine("[" + DateTime.Now + "] Server is already stopped");
                     break;
             }
@@ -78,7 +78,7 @@ namespace HahatoonProjectServer
             }
             else
             {
-                ShowError(Structs.Errors.ConnectionFileNotExists);
+                ShowMessage(Structs.Message.ConnectionFileNotExists);
 
                 return null;
             }
@@ -150,7 +150,7 @@ namespace HahatoonProjectServer
                 case "start":
                     if(Structs.server != null)
                     {
-                        ShowError(Structs.Errors.ErrorStartServer);
+                        ShowMessage(Structs.Message.ErrorStartServer);
                         return;
                     }
                     
@@ -162,7 +162,7 @@ namespace HahatoonProjectServer
                 case "stop":
                     if (Structs.server == null)
                     {
-                        ShowError(Structs.Errors.ErrorStopServer);
+                        ShowMessage(Structs.Message.ErrorStopServer);
                         return;
                     }
 
@@ -175,7 +175,8 @@ namespace HahatoonProjectServer
         /// <summary>
         /// Получает текущую дату через интернет
         /// </summary>
-        public static DateTime GetNetworkTime()
+        //public static DateTime GetNetworkTime()
+        public static string GetNetworkTime()
         {
             const string ntpServer = "time.windows.com";
             var ntpData = new byte[48];
@@ -198,7 +199,9 @@ namespace HahatoonProjectServer
             var milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
             var networkDateTime = (new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds((long)milliseconds);
 
-            return networkDateTime.ToLocalTime();
+            var currentTime = networkDateTime.ToLocalTime();
+
+            return currentTime.Year + "." + currentTime.Month + "." + currentTime.Day + " " + currentTime.Hour + ":" + currentTime.Minute + ":" + currentTime.Second;
         }
     }
 }

@@ -1,12 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace HahatoonProjectServer
 {
     static class Log
     {
+        private static readonly string PATH = "Log.txt";
+
+        public static void Write(string message)
+        {
+            using (var sw = new StreamWriter(PATH, true, Encoding.Default))
+            {
+                sw.WriteLine(message);
+            }
+        }
     }
 }

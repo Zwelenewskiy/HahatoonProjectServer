@@ -20,7 +20,9 @@ namespace HahatoonProjectServer
             HttpListenerContext context = (HttpListenerContext)obj;
             DateTime curDate = DateTime.Now;            
             Structs.Authentication enter;
-            
+            string date;
+
+
             var request = context.Request;
             var response = context.Response;
 
@@ -34,16 +36,16 @@ namespace HahatoonProjectServer
                 connect.Open();
                 if (connect.State != ConnectionState.Open)
                 {
-                    Functions.ShowError(Structs.Errors.ErrorCreatingConnection);
+                    Functions.ShowMessage(Structs.Message.ErrorCreatingConnection);
                     return;
                 }
 
+                enter = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr);
+                //date = Functions.GetNetworkTime();////////////////////////////////////////////////////
                 switch (Convert.ToInt32(Command))
                 {
                     /////////////////Авторизация/////////////////
                     case 0:
-                        enter = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr);
-
                         using (var Reader = Functions.Query(connect, $"select * from {Structs.BD_NAME}.user where login = @login && password = @password", true,
                             new Structs.Query("@login", null, enter.Login), new Structs.Query("@password", null, enter.Password)))
                         {
@@ -53,12 +55,13 @@ namespace HahatoonProjectServer
 
                                 Console.WriteLine("[" + curDate + "] Подключен пользовaтель [" + enter.Login + "] [" + enter.Password + "]");
                                 Console.WriteLine();
+
+                                Log.Write("[" + curDate + "] Подключен пользовaтель [" + enter.Login + "] [" + enter.Password + "]");
                             }
                             else
                                 Functions.SendMessage(response, "0");
                                 
                         }                        
-
                         break;
 
                     /////////////////Список INN-CompName/////////////////
@@ -75,8 +78,9 @@ namespace HahatoonProjectServer
                             }
 
                             Functions.SendMessage(response, JsonConvert.SerializeObject(new Structs.INN_Comp(tmp)));
-                        }
 
+                            Log.Write("[" + curDate + $"] Пользователь {enter.Login} запросил список INN_CompName");
+                        }
                         break;
 
                     case 2:
@@ -85,14 +89,13 @@ namespace HahatoonProjectServer
                         Console.WriteLine("[" + curDate + "] Пользовaтель [" + enter.Login + "] [" + enter.Password + "] отключен");
                         Console.WriteLine();
 
+                        Log.Write("[" + curDate + "] Пользовaтель [" + enter.Login + "] [" + enter.Password + "] отключен");
                         break;
 
                     case 3:
                         var report = JsonConvert.DeserializeObject<Structs.Report>(Jstr);
 
-                        DateTime currentTime = Functions.GetNetworkTime();
-
-                        string date = currentTime.Year + "." + currentTime.Month + "." + currentTime.Day + " " + currentTime.Hour + ":" + currentTime.Minute + ":" + currentTime.Second;
+                        date = Functions.GetNetworkTime();
 
                         string query = $"call {Structs.BD_NAME}.AddNewReport('{report.inn}', {report.quarter}, {report.year}, '{date}', '" +
                             $"{report.param1[0]}', '{report.param2[0]}', '{report.param3[0].ToString("G", CultureInfo.InvariantCulture)}', '" +
@@ -105,6 +108,7 @@ namespace HahatoonProjectServer
 
                         Functions.SendMessage(response, "1");
 
+                        Log.Write("[" + curDate + $"] Пользователь {enter.Login} отправил отчет");
                         break;
                 }
 
@@ -115,7 +119,7 @@ namespace HahatoonProjectServer
 
         public void Start(string host)
         {
-            DateTime curDate = DateTime.Now;
+            //string date = Functions.GetNetworkTime();/////////////////////////////////////////////////
 
             listener = new HttpListener();
 
@@ -123,11 +127,13 @@ namespace HahatoonProjectServer
             listener.Prefixes.Add(host);
             listener.Start();
 
-            Console.WriteLine(curDate + " Сервер запущен. Ожидание подключений...");
+            Console.WriteLine("[" + DateTime.Now + "] Сервер запущен. Ожидание подключений...");
             Console.WriteLine();
             Console.WriteLine();
 
+            Log.Write("[" + DateTime.Now + "] Сервер запущен");
         }
+
         public void Stop()
         {
             // останавливаем прослушивание подключений 
@@ -137,6 +143,8 @@ namespace HahatoonProjectServer
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine("Сервер остановлен");
+
+            Log.Write("[" + DateTime.Now + "] Сервер остановлен");
         }
 
         public void NewConnection()

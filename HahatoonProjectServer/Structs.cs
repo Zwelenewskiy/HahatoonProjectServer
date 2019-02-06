@@ -17,7 +17,7 @@ namespace HahatoonProjectServer
         /// <summary>
         /// Представляет константы для типов ошибок
         /// </summary>
-        public enum Errors
+        public enum Message
         {
             ConnectionFileNotExists,
             ErrorCreatingConnection,
