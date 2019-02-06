@@ -91,7 +91,11 @@ namespace HahatoonProjectServer
                     case 3:
                         var report = JsonConvert.DeserializeObject<Structs.Report>(Jstr);
 
-                        string query = $"call {Structs.BD_NAME}.AddNewReport('{report.inn}', {report.quarter}, {report.year}, '{DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss")}', '" +
+                        DateTime currentTime = Functions.GetNetworkTime();
+
+                        string date = currentTime.Year + "." + currentTime.Month + "." + currentTime.Day + " " + currentTime.Hour + ":" + currentTime.Minute + ":" + currentTime.Second;
+
+                        string query = $"call {Structs.BD_NAME}.AddNewReport('{report.inn}', {report.quarter}, {report.year}, '{date}', '" +
                             $"{report.param1[0]}', '{report.param2[0]}', '{report.param3[0].ToString("G", CultureInfo.InvariantCulture)}', '" +
                             $"{report.param1[1]}', '{report.param2[1]}', '{report.param3[1].ToString("G", CultureInfo.InvariantCulture)}', '" +
                             $"{report.param1[2]}', '{report.param2[2]}', '{report.param3[2].ToString("G", CultureInfo.InvariantCulture)}', '" +
