@@ -18,15 +18,13 @@ namespace HahatoonProjectServer
         public void NewUser(object obj)
         {
             HttpListenerContext context = (HttpListenerContext)obj;
-            DateTime curDate = DateTime.Now;            
-            Structs.Authentication enter;
+            DateTime curDate = DateTime.Now;     
             string date;
-
 
             var request = context.Request;
             var response = context.Response;
 
-            using (StreamReader input = new StreamReader( request.InputStream, Encoding.UTF8))
+            using (StreamReader input = new StreamReader(request.InputStream, Encoding.UTF8))
             {
                 string Command = null, Jstr = null;
                 Functions.Parser(input.ReadToEnd(), ref Command, ref Jstr, Structs.SeparatorChar);
@@ -40,7 +38,7 @@ namespace HahatoonProjectServer
                     return;
                 }
 
-                enter = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr);
+                Structs.Authentication enter = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr);
                 //date = Functions.GetNetworkTime();////////////////////////////////////////////////////
                 switch (Convert.ToInt32(Command))
                 {
@@ -52,6 +50,9 @@ namespace HahatoonProjectServer
                             if (Reader.HasRows)
                             {
                                 Functions.SendMessage(response, "1");
+
+                                Structs.users.Add($"{enter.Login} {enter.Password}", $"{curDate}");
+                                Structs.usersCount++;
 
                                 Console.WriteLine("[" + curDate + "] Подключен пользовaтель [" + enter.Login + "] [" + enter.Password + "]");
                                 Console.WriteLine();
@@ -79,17 +80,20 @@ namespace HahatoonProjectServer
 
                             Functions.SendMessage(response, JsonConvert.SerializeObject(new Structs.INN_Comp(tmp)));
 
-                            Log.Write("[" + curDate + $"] Пользователь {enter.Login} запросил список INN_CompName");
+                            Log.Write("[" + curDate + $"] Пользователь [{enter.Login}] [{enter.Password}]  запросил список INN_CompName");
                         }
                         break;
 
                     case 2:
                         enter = JsonConvert.DeserializeObject<Structs.Authentication>(Jstr);
 
-                        Console.WriteLine("[" + curDate + "] Пользовaтель [" + enter.Login + "] [" + enter.Password + "] отключен");
+                        Structs.users.Remove($"{enter.Login} {enter.Password}");
+                        Structs.usersCount--;
+
+                        Console.WriteLine("[" + curDate + $"] Пользовaтель [{enter.Login}] [{enter.Password}] отключен)");
                         Console.WriteLine();
 
-                        Log.Write("[" + curDate + "] Пользовaтель [" + enter.Login + "] [" + enter.Password + "] отключен");
+                        Log.Write("[" + curDate + $"] Пользовaтель [{enter.Login}] [{enter.Password}] отключен");
                         break;
 
                     case 3:
@@ -108,7 +112,7 @@ namespace HahatoonProjectServer
 
                         Functions.SendMessage(response, "1");
 
-                        Log.Write("[" + curDate + $"] Пользователь {enter.Login} отправил отчет");
+                        Log.Write("[" + curDate + $"] Пользователь [{enter.Login}] [{enter.Password}] отправил отчет");
                         break;
                 }
 

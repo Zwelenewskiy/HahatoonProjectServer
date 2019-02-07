@@ -137,14 +137,24 @@ namespace HahatoonProjectServer
         {
             string command = Console.ReadLine();
 
+            Console.WriteLine("---------------------------------------------------------------");
             switch (command.ToLower())
             {
-                case "stat":
+                case "users":
+                    Console.WriteLine("Users count = " + Structs.usersCount);
+                    Console.WriteLine();
+
+                    if(Structs.usersCount > 0)
+                    {
+                        Console.WriteLine("Users list:");
+                        foreach (var userInfo in Structs.users.Keys)
+                            Console.WriteLine("[" + Structs.users[userInfo] + "] " + userInfo);
+                    }
+
                     break;
 
                 case "clear":
                     Console.Clear();
-
                     break;
 
                 case "start":
@@ -156,7 +166,6 @@ namespace HahatoonProjectServer
                     
                     Structs.server = new Server();
                     Structs.server.Start(Structs.HOST);
-
                     break;
 
                 case "stop":
@@ -167,7 +176,10 @@ namespace HahatoonProjectServer
                     }
 
                     Structs.server.Stop();
+                    break;
 
+                default:
+                    Console.WriteLine("Неверная команда");
                     break;
             }
         }

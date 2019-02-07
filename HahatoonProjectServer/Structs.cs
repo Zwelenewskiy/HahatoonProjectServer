@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,8 @@ namespace HahatoonProjectServer
         public static readonly string BD_NAME = "hakaton";
         public static readonly char SeparatorChar = '&';
         public static Server server = null;
+        public static long usersCount;
+        public static Hashtable users = new Hashtable();
 
         /// <summary>
         /// Представляет константы для типов ошибок
